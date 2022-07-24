@@ -1,18 +1,13 @@
-package com.fabiolima.financeiro.model;
+package com.fabiolima.financeiro.model.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "usuario", schema = "financas")
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Builder
+@Data
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

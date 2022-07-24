@@ -1,10 +1,8 @@
-package com.fabiolima.financeiro.model;
+package com.fabiolima.financeiro.model.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import org.springframework.data.convert.Jsr310Converters;
+import com.fabiolima.financeiro.model.enums.StatusLancamento;
+import com.fabiolima.financeiro.model.enums.TipoLancamento;
+import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -12,10 +10,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "lancamento", schema = "financas")
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@Builder
+@Data
 public class Lancamento {
 
     @Id
@@ -34,9 +30,10 @@ public class Lancamento {
 
     private BigDecimal valor;
 
+
     @Column(name = "data_cadastro")
-    @Convert(converter = Jsr310Converters.LocalDateToDateConverter.class)
     private LocalDate dataCadastro;
+
 
     @Column(name = "tipo")
     @Enumerated(value = EnumType.STRING)
