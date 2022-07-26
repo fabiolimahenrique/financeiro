@@ -1,10 +1,11 @@
 package com.fabiolima.financeiro.service;
 
+import com.fabiolima.financeiro.exception.ErroAutenticacao;
 import com.fabiolima.financeiro.exception.RegraNegocioException;
 import com.fabiolima.financeiro.model.entity.Usuario;
 import com.fabiolima.financeiro.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -20,12 +21,21 @@ public class UsuarioServiceImpl implements UsuarioService  {
 
     @Override
     public Usuario autenticar(String email, String senha) {
-        return null;
+        Optional<Usuario> usuario = usuarioRepository.findByEmail(email);
+        if(!usuario.isPresent()){
+            throw new ErroAutenticacao("Usuário não cadastrado");
+        }
+        if(!usuario.get().getSenha().equals(senha) ){
+            throw new ErroAutenticacao("Senha inválida");
+        }
+        return usuario.get();
     }
 
     @Override
+    @Transactional
     public Usuario salvarUsuario(Usuario usuario) {
-        return null;
+        validarEmail(usuario.getEmail());
+        return usuarioRepository.save(usuario);
     }
 
     @Override
