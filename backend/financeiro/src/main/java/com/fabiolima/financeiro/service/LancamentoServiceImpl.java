@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class LancamentoServiceImpl implements LancamentoService {
@@ -47,7 +48,7 @@ public class LancamentoServiceImpl implements LancamentoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Lancamento> lancamentos(Lancamento lancamento) {
+    public List<Lancamento> listar(Lancamento lancamento) {
         Example example = Example.of(lancamento,
                 ExampleMatcher.matching().withIgnoreCase()
                         .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING));
@@ -86,5 +87,10 @@ public class LancamentoServiceImpl implements LancamentoService {
             throw new RegraNegocioException("Lancamento inválido");
         }
 
+    }
+
+    @Override
+    public Optional<Lancamento> buscarPorId(Long id) {
+        return lancamentoRepository.findById(id);
     }
 }

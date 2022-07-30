@@ -4,6 +4,7 @@ import com.fabiolima.financeiro.model.entity.Lancamento;
 import com.fabiolima.financeiro.model.enums.StatusLancamento;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LancamentoService {
 
@@ -13,10 +14,12 @@ public interface LancamentoService {
 
     void deletar(Lancamento lancamento);
 
-    List<Lancamento> lancamentos(Lancamento lancamento);
+    List<Lancamento> listar(Lancamento lancamento);
 
     void atualizarStatus(Lancamento lancamento, StatusLancamento statusLancamento);
 
     void validarLancamento(Lancamento lancamento);
+
+    Optional<Lancamento> buscarPorId(Long id);
 
 }
