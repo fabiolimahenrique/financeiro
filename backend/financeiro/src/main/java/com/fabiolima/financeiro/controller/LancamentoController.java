@@ -1,5 +1,6 @@
 package com.fabiolima.financeiro.controller;
 
+import com.fabiolima.financeiro.api.dto.AtualizaStatusDTO;
 import com.fabiolima.financeiro.api.dto.LancamentoDTO;
 import com.fabiolima.financeiro.exception.RegraNegocioException;
 import com.fabiolima.financeiro.model.entity.Lancamento;
@@ -8,6 +9,7 @@ import com.fabiolima.financeiro.model.enums.StatusLancamento;
 import com.fabiolima.financeiro.model.enums.TipoLancamento;
 import com.fabiolima.financeiro.service.LancamentoService;
 import com.fabiolima.financeiro.service.UsuarioService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,32 +19,26 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/lancamentos")
+@RequiredArgsConstructor
 public class LancamentoController {
 
-    private LancamentoService lancamentoService;
-    private UsuarioService usuarioService;
+    private final LancamentoService lancamentoService;
+    private final UsuarioService usuarioService;
 
-    public LancamentoController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
-    }
-
-    public LancamentoController(LancamentoService lancamentoService) {
-        this.lancamentoService = lancamentoService;
-    }
-
-
+    @GetMapping
     public ResponseEntity buscar(
-            @PathVariable(value = "descricao", required = false) String descricao,
-            @PathVariable(value = "mes", required = false) Integer mes,
-            @PathVariable(value = "ano", required = false) Integer ano,
-            @PathVariable("usuario") Long idUsuario
+            @RequestParam(value = "descricao", required = false) String descricao,
+            @RequestParam(value = "mes", required = false) Integer mes,
+            @RequestParam(value = "ano", required = false) Integer ano,
+            @RequestParam(value = "usuario", required = false) Long idUsuario
     ){
+        System.out.println("id usuario:" + descricao);
          Lancamento lancamentoFiltro = new Lancamento();
          lancamentoFiltro.setDescricao(descricao);
          lancamentoFiltro.setMes(mes);
          lancamentoFiltro.setAno(ano);
          Optional<Usuario> usuario = usuarioService.buscarPorId(idUsuario);
-         if (usuario.isPresent()){
+        if (usuario.isPresent()){
              lancamentoFiltro.setUsuario(usuario.get());
          } else {
              ResponseEntity.badRequest().body("Não foi possível realizar a busca, usuário não encontrado");
@@ -77,6 +73,23 @@ public class LancamentoController {
         }).orElseGet( () -> new ResponseEntity("Lançamento não encontrado", HttpStatus.BAD_REQUEST) );
     }
 
+    @PutMapping("{id}/atualiza-status")
+    public ResponseEntity atualizaStatus(@PathVariable("id") Long id, @RequestBody AtualizaStatusDTO atualizaStatusDTO){
+        return lancamentoService.buscarPorId(id).map( entity -> {
+          StatusLancamento statusSelecionado =  StatusLancamento.valueOf(atualizaStatusDTO.getStatusLancamento());
+            if(statusSelecionado == null) {
+             return new ResponseEntity("Não foi possível atualizar o status", HttpStatus.BAD_REQUEST);
+          }
+          try {
+              entity.setStatusLancamento(statusSelecionado);
+              lancamentoService.atualizar(entity);
+              return ResponseEntity.ok(entity);
+          } catch (RegraNegocioException e){
+              return ResponseEntity.badRequest().body(e.getMessage());
+          }
+      }).orElseGet( () -> new ResponseEntity("Não foi possível atualizar o status", HttpStatus.BAD_REQUEST));
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity deletar(@PathVariable Long id){
         return lancamentoService.buscarPorId(id).map( entity -> {
@@ -90,15 +103,19 @@ public class LancamentoController {
         lancamento.setId(lancamentoDTO.getId());
         lancamento.setDescricao(lancamentoDTO.getDescricao());
         lancamento.setMes(lancamentoDTO.getMes());
-        lancamento.setAno(lancamento.getAno());
+        lancamento.setAno(lancamentoDTO.getAno());
         lancamento.setValor(lancamentoDTO.getValor());
 
         Usuario usuario = usuarioService.buscarPorId(lancamentoDTO.getUsuario()).orElseThrow(
                 () -> new RegraNegocioException("Usuário inválido")
         );
         lancamento.setUsuario( usuario );
-        lancamento.setTipoLancamento(TipoLancamento.valueOf(lancamentoDTO.getTipoLancamento()));
-        lancamento.setStatusLancamento(StatusLancamento.valueOf(lancamentoDTO.getStatusLancamento()));
+        if(lancamentoDTO.getTipoLancamento() != null) {
+            lancamento.setTipoLancamento(TipoLancamento.valueOf(lancamentoDTO.getTipoLancamento()));
+        }
+        if(lancamentoDTO.getStatusLancamento() != null) {
+            lancamento.setStatusLancamento(StatusLancamento.valueOf(lancamentoDTO.getStatusLancamento()));
+        }
         return lancamento;
     }
 

@@ -3,6 +3,7 @@ package com.fabiolima.financeiro.service;
 import com.fabiolima.financeiro.exception.RegraNegocioException;
 import com.fabiolima.financeiro.model.entity.Lancamento;
 import com.fabiolima.financeiro.model.enums.StatusLancamento;
+import com.fabiolima.financeiro.model.enums.TipoLancamento;
 import com.fabiolima.financeiro.repository.LancamentoRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -28,6 +30,7 @@ public class LancamentoServiceImpl implements LancamentoService {
     public Lancamento salvar(Lancamento lancamento) {
         validarLancamento(lancamento);
         lancamento.setStatusLancamento(StatusLancamento.PENDENTE);
+        lancamento.setDataCadastro(LocalDate.now());
         return lancamentoRepository.save(lancamento);
     }
 
@@ -93,4 +96,23 @@ public class LancamentoServiceImpl implements LancamentoService {
     public Optional<Lancamento> buscarPorId(Long id) {
         return lancamentoRepository.findById(id);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BigDecimal obterSaldoPorUsuario(Long id) {
+       BigDecimal receitas = lancamentoRepository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.RECEITA);
+       BigDecimal despesas = lancamentoRepository.obterSaldoPorTipoLancamentoEUsuario(id, TipoLancamento.DESPESA);
+
+       if(receitas == null) {
+           receitas = BigDecimal.ZERO;
+       }
+
+       if(despesas == null){
+           despesas = BigDecimal.ZERO;
+       }
+
+       return receitas.subtract(despesas);
+    }
+
+
 }
