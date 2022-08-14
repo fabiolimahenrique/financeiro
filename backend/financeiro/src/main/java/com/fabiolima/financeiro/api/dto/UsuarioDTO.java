@@ -1,12 +1,14 @@
 package com.fabiolima.financeiro.api.dto;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Builder
+@Data
 public class UsuarioDTO {
     private String nome;
     private String email;

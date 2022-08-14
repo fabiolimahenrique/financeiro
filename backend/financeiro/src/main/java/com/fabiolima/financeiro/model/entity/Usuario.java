@@ -1,5 +1,6 @@
 package com.fabiolima.financeiro.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,5 +17,6 @@ public class Usuario {
     private Long id;
     private String nome;
     private String email;
+    @JsonIgnore
     private String senha;
 }
