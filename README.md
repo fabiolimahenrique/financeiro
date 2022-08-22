@@ -25,4 +25,6 @@
 <ul>
     <li>Visual Studio Code</li>
     <li>React</li>
+    <li>Bootswatch</li>
+    <li>Bootstrap</li>
 </ul>
