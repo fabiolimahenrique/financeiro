@@ -7,6 +7,8 @@
 
 <h2>🛠 Tecnologias Utilizadas</h2>
 
+- [x] Back-end
+
 <ul>
     <li>IDE IntelliJ</li>
     <li>Java 11</li>
@@ -16,4 +18,13 @@
     <li><strong>PostgreSQL Driver</strong></li>
     <li>Lombok</li>
     <li>Insomnia</li>
+</ul>
+
+- [x] Front-end
+
+<ul>
+    <li>Visual Studio Code</li>
+    <li>React</li>
+    <li>Bootswatch</li>
+    <li>Bootstrap</li>
 </ul>
