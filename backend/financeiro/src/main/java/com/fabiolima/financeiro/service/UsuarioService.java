@@ -14,4 +14,6 @@ public interface UsuarioService {
 
     Optional<Usuario> buscarPorId(Long id);
 
+
+
 }

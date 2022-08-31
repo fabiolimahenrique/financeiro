@@ -1,6 +1,8 @@
 import React from "react";
 import Card from "../components/card";
 import FormGroup from "../components/form-group";
+import { mensagemErro } from "../components/toastr";
+import LocalStorageService from "../services/localStorageService";
 import UsuarioService from "../services/usuarioService";
 
 class Login extends React.Component {
@@ -12,22 +14,21 @@ class Login extends React.Component {
   state = {
     email: "",
     senha: "",
-    mensagemErro: "",
   };
 
-  entrar = async () => {
+  entrar = () => {
     let user = {
       email: this.state.email,
       senha: this.state.senha,
     };
 
-    await this.service.autenticar(user)
+     this.service.autenticar(user)
       .then((response) => {
-        localStorage.setItem("_usuario_logado", JSON.stringify(response.data));
+        LocalStorageService.adicionarItem("_usuario_logado", response.data);
         this.props.history.push("/home");
       })
       .catch((err) => {
-        this.setState({ mensagemErro: err.response.data });
+        mensagemErro(err.response.data)
         console.log(err.response);
       });
   };
