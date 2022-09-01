@@ -2,6 +2,8 @@ import React from "react";
 import Card from "../components/card";
 import FormGroup from "../components/form-group";
 import { withRouter } from "react-router-dom";
+import UsuarioService from "../services/usuarioService";
+import { mensagemErro, mensagemSucesso } from "../components/toastr";
 
 class CadastroUsuario extends React.Component {
   state = {
@@ -11,8 +13,59 @@ class CadastroUsuario extends React.Component {
     senhaRepeticao: "",
   };
 
+  constructor() {
+    super();
+    this.usuarioService = new UsuarioService();
+  }
+
+  validar() {
+    const msgs = [];
+
+    if (!this.state.nome) {
+      msgs.push("Informe o nome do usuário.");
+    }
+
+    if (!this.state.email) {
+      msgs.push("Informe o email do usuário.");
+    } else if (
+      !this.state.email.match(/^[a-z0-9.]+@[a-z0-9]+\.[a-z]/)
+    ) {
+      msgs.push("Informe um email válido.");
+    }
+
+    if (!this.state.senha) {
+      msgs.push("Informe a senha do usuário.");
+    } else if (this.state.senha !== this.state.senhaRepeticao) {
+      msgs.push("Senha não confere.");
+    }
+
+    return msgs;
+  }
+
   cadastrar = () => {
-    console.log(this.state);
+
+    const msgs = this.validar();
+    if (msgs && msgs.length > 0 ){
+       msgs.forEach( (msg, index) => {
+          mensagemErro(msg)
+       })
+       return false;
+    }
+
+    let user = {
+      nome: this.state.nome,
+      email: this.state.email,
+      senha: this.state.senha,
+    };
+    this.usuarioService
+      .cadastrarUsuario(user)
+      .then((response) => {
+        mensagemSucesso(
+          `Usuário ${response.data.nome} cadastrado com sucesso.`
+        );
+        this.props.history.push("/login");
+      })
+      .catch((erro) => mensagemErro(erro.response.data));
   };
 
   cancelar = () => {
