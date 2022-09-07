@@ -78,6 +78,9 @@ class Login extends React.Component {
                           placeholder="Password"
                         />
                       </FormGroup>
+
+                      <br />  
+
                       <button
                         onClick={this.entrar}
                         type="button"

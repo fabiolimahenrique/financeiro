@@ -121,6 +121,8 @@ class CadastroUsuario extends React.Component {
                 />
               </FormGroup>
 
+              <br />
+  
               <button
                 type="button"
                 onClick={this.cadastrar}
