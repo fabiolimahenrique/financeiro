@@ -1,21 +1,30 @@
 import React from "react";
+import currencyFormatter from "currency-formatter";
 
 const LancamentoTable = (props) => {
-  const rows = props.lancamentos.map( (lancamento) => {
-      return (
-        <tr key={lancamento.id}>
-            <td>{lancamento.descricao}</td>
-            <td>{lancamento.valor}</td>
-            <td>{lancamento.tipoLancamento}</td>
-            <td>{lancamento.mes}</td>
-            <td>{lancamento.statusLancamento}</td>
-            <td>
-
-            </td>
-       
-        </tr> 
-      )
-  } )
+  const rows = props.lancamentos.map((lancamento) => {
+    return (
+      <tr key={lancamento.id}>
+        <td>{String(lancamento.descricao).toUpperCase()}</td>
+        <td>
+          {currencyFormatter.format(lancamento.valor, { locale: "pt-BR" })}
+        </td>
+        <td>{lancamento.tipoLancamento}</td>
+        <td>{lancamento.mes}</td>
+        <td>{lancamento.statusLancamento}</td>
+        <td>
+          <button type="button" className="btn btn-primary">
+            Editar
+          </button>
+          <button type="button"
+                  onClick={e => props.deletarAction(lancamento)} 
+                  className="btn btn-danger">
+            Deletar
+          </button>
+        </td>
+      </tr>
+    );
+  });
 
   return (
     <table className="table table-hover">
@@ -29,9 +38,7 @@ const LancamentoTable = (props) => {
           <th scope="col">Ações</th>
         </tr>
       </thead>
-      <tbody>
-         {rows} 
-      </tbody>
+      <tbody>{rows}</tbody>
     </table>
   );
 };

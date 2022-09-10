@@ -6,14 +6,19 @@ import SelectMenu from "../../components/selectMenu";
 import LancamentoService from "../../services/lancamentoService";
 import LancamentoTable from "./lancamentosTable";
 import LocalStorageService from "../../services/localStorageService";
+import * as messages from "../../components/toastr";
+import { ConfirmDialog } from 'primereact/confirmdialog';
 
 class ConsultaLancamentos extends React.Component {
 
   state = {
     ano: '',
     mes: '',
+    descricao: '',
     tipoLancamento: '',
     statusLancamento: '',
+    showConfirmDialog: false,
+    lancamentoDeletar: {},
     lancamentos: []
   }
 
@@ -23,11 +28,18 @@ class ConsultaLancamentos extends React.Component {
   }
 
   buscar = () => {
+
+    if(!this.state.ano) {
+      messages.mensagemErro('Informe o ano para busca.')
+      return false;
+    }
+
     const usuarioLogado  = LocalStorageService.obterItem("_usuario_logado");
 
      const lancamentoFiltro = {
          ano: this.state.ano,
          mes: this.state.mes,
+         descricao: this.state.descricao,
          tipoLancamento: this.state.tipoLancamento,
          statusLancamento: this.state.statusLancamento,
          usuario: usuarioLogado.id
@@ -42,31 +54,30 @@ class ConsultaLancamentos extends React.Component {
 
   }
 
+
+  confirmaExclusao = (lancamento) => {
+    this.setState({showConfirmDialog : true, lancamentoDeletar: lancamento})
+  }
+
+  deletar = () => {
+    this.service.deletar(this.state.lancamentoDeletar.id).then( response => {
+       const lancamentos = this.state.lancamentos;
+       const index = lancamentos.indexOf(this.state.lancamentoDeletar);
+       lancamentos.splice(index, 1);
+       this.setState(lancamentos);
+       messages.mensagemAviso('Lancamento excluido com sucesso.')
+    }).catch (error => {
+       messages.mensagemErro(error.data)
+    })
+
+  }
+
   render() {
-    const meses = [
-      { label: "Selecione...", value: "" },
-      { label: "Janeiro", value: 1 },
-      { label: "Fevereiro", value: 2 },
-      { label: "Março", value: 3 },
-      { label: "Abril", value: 4 },
-      { label: "Maio", value: 5 },
-      { label: "Junho", value: 6 },
-      { label: "Julho", value: 7 },
-      { label: "Agosto", value: 8 },
-      { label: "Setembro", value: 9 },
-      { label: "Outubro", value: 10 },
-      { label: "Novembro", value: 11 },
-      { label: "Dezembro", value: 12 },
-    ];
+    const meses = this.service.obterListaMeses();
 
-    const tipos = [
-      { label: "Selecione...", value: "" },
-      { label: "Receita", value: "RECEITA" },
-      { label: "Despesa", value: "DESPESA" },
-    ];
+    const tipos = this.service.obterListaTipos();
 
-    
-
+   
     return (
       <Card title="Consulta Lançamentos">
         <div className="row">
@@ -85,6 +96,13 @@ class ConsultaLancamentos extends React.Component {
                             onChange={e => this.setState({ mes: e.target.value})}
                             className="form-control" 
                             lista={meses} />
+              </FormGroup>
+              <FormGroup htmlFor="inputDescricao" label="Descrição: ">
+                <input id="inputDescricao" 
+                            value={this.state.descricao}
+                            onChange={e => this.setState({ descricao: e.target.value})}
+                            className="form-control" 
+                            />
               </FormGroup>
               <FormGroup htmlFor="inputTipo" label="Tipo: ">
                 <SelectMenu
@@ -109,10 +127,22 @@ class ConsultaLancamentos extends React.Component {
         <div className="row">
             <div className="col-md-12">
               <div className="bs-component">
-                 <LancamentoTable  lancamentos={this.state.lancamentos}/>
+                 <LancamentoTable  lancamentos={this.state.lancamentos}  deletarAction={this.confirmaExclusao} />
               </div>
-                
             </div>
+        </div>
+        <ConfirmDialog visible={this.state.showConfirmDialog} 
+                       onHide={() => this.setState({showConfirmDialog: false})} 
+                       message="Deseja excluir o lancamento?"
+                       header="Confirmação" 
+                       icon="pi pi-exclamation-triangle" 
+                       acceptLabel="Sim"
+                       rejectLabel="Não"
+                       accept={this.deletar} 
+                       //reject={reject} 
+                       />
+        <div>
+
         </div>
       </Card>
     );
