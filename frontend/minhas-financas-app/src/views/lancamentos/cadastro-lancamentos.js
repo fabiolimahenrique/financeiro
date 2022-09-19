@@ -6,22 +6,39 @@ import SelectMenu from "../../components/selectMenu";
 import LancamentoService from "../../services/lancamentoService";
 import * as messages from "../../components/toastr";
 import LocalStorageService from "../../services/localStorageService";
-import { ConfirmDialog } from 'primereact/confirmdialog';
+import { ConfirmDialog } from "primereact/confirmdialog";
 
 class CadastroLancamentos extends React.Component {
   state = {
+    id: null,
     ano: "",
     mes: "",
     descricao: "",
     valor: null,
     tipoLancamento: "",
+    statusLancamento: "",
     usuario: null,
-    showConfirmDialog: false
+    showConfirmDialog: false,
   };
 
   constructor() {
     super();
     this.service = new LancamentoService();
+  }
+
+  componentDidMount() {
+    const params = this.props.match.params;
+   
+    if (params.id) {
+      this.service
+        .obterPorId(params.id)
+        .then((response) => {
+          this.setState({ ...response.data, atualizando: true });
+        })
+        .catch((error) => {
+          messages.mensagemErro(error.response.data);
+        });
+    }
   }
 
   validar() {
@@ -32,71 +49,102 @@ class CadastroLancamentos extends React.Component {
     }
 
     if (!this.state.ano) {
-        msgs.push("Informe o ano do lancamento.");
+      msgs.push("Informe o ano do lancamento.");
     }
 
     if (!this.state.mes) {
-        msgs.push("Informe o mes do lancamento.");
-    }  
+      msgs.push("Informe o mes do lancamento.");
+    }
 
     if (!this.state.valor) {
-        msgs.push("Informe o valor do lancamento.");
-    }  
+      msgs.push("Informe o valor do lancamento.");
+    }
 
     return msgs;
   }
-  
+
   limparCampos = () => {
     this.setState({
-        ano: "",
-        mes: "",
-        descricao: "",
-        valor: "",
-        tipoLancamento: "",
-        usuario: null,
-        showConfirmDialog: false
-      })
-  }
-
+      ano: "",
+      mes: "",
+      descricao: "",
+      valor: "",
+      tipoLancamento: "",
+      usuario: null,
+      showConfirmDialog: false,
+      atualizando: false
+    });
+  };
 
   obterLancamento = () => {
-    const usuarioLogado  = LocalStorageService.obterItem("_usuario_logado");
+    const usuarioLogado = LocalStorageService.obterItem("_usuario_logado");
     return {
-        descricao: this.state.descricao,
-        ano: this.state.ano,
-        mes: this.state.mes,
-        valor: this.state.valor,
-        tipoLancamento: this.state.tipoLancamento ,
-        usuario: usuarioLogado.id
-    }
-  }
+      descricao: this.state.descricao,
+      ano: this.state.ano,
+      mes: this.state.mes,
+      valor: this.state.valor,
+      tipoLancamento: this.state.tipoLancamento,
+      usuario: usuarioLogado.id,
+    };
+  };
 
   cadastrar = () => {
     const msgs = this.validar();
-    if (msgs && msgs.length > 0 ){
-       msgs.forEach( (msg, index) => {
-          messages.mensagemErro(msg)
-       })
-       return false;
+    if (msgs && msgs.length > 0) {
+      msgs.forEach((msg, index) => {
+        messages.mensagemErro(msg);
+      });
+      return false;
     }
 
-      const lancamento = this.obterLancamento();
-      this.service.cadastrar(lancamento).then( response => {
+    const lancamento = this.obterLancamento();
+    this.service
+      .cadastrar(lancamento)
+      .then((response) => {
         this.limparCampos();
-        messages.mensagemSucesso('Lançamento cadastrado com sucesso.') 
-      }).catch ( error => {
+        messages.mensagemSucesso("Lançamento cadastrado com sucesso.");
+      })
+      .catch((error) => {
         messages.mensagemErro(error.data);
-      } )
-  }
+      });
+  };
+
+  atualizar = () => {
+    const { id, descricao, valor, mes, ano, tipoLancamento, usuario } =
+      this.state;
+    const lancamento = {
+      id,
+      descricao,
+      valor,
+      mes,
+      ano,
+      tipoLancamento,
+      usuario,
+    };
+
+    this.service
+      .alterar(lancamento)
+      .then((response) => {
+        this.limparCampos();
+        messages.mensagemSucesso("Lançamento alterado com sucesso.");
+      })
+      .catch((error) => {
+        messages.mensagemErro(error.data);
+      });
+  };
 
   confirmaCancelar = () => {
-
-    if (this.state.descricao ||  this.state.ano || this.state.mes || this.state.valor ) {
-        this.setState({showConfirmDialog : true})
+    if (
+      this.state.descricao ||
+      this.state.ano ||
+      this.state.mes ||
+      this.state.valor
+    ) {
+      this.setState({ showConfirmDialog: true });
     } else {
-        this.cancelar();
+      this.cancelar();
     }
-  }
+  };
 
   cancelar = () => {
     this.props.history.push("/home");
@@ -106,14 +154,14 @@ class CadastroLancamentos extends React.Component {
     const meses = this.service.obterListaMeses();
     const tipos = this.service.obterListaTipos();
     return (
-      <Card title="Cadastro de lançamentos">
+      <Card title={this.state.atualizando ? 'Atualizar lançamento' : 'Cadastro de lançamentos'}>
         <div className="row">
           <FormGroup htmlfor="inputDescricao" label="Descrição *">
             <input
               type="text"
               className="form-control"
               value={this.state.descricao}
-              onChange={ e => this.setState({ descricao: e.target.value })}
+              onChange={(e) => this.setState({ descricao: e.target.value })}
               id="inputDescricao"
             />
           </FormGroup>
@@ -135,7 +183,16 @@ class CadastroLancamentos extends React.Component {
                 type="text"
                 className="form-control"
                 value={this.state.valor}
-                onChange={ e => this.setState({ valor: e.target.value })}
+                onChange={(e) => this.setState({ valor: e.target.value })}
+                id="inputValor"
+              />
+            </FormGroup>
+            <FormGroup htmlfor="inputStatus" label="Status">
+              <input
+                type="text"
+                className="form-control"
+                value={this.state.statusLancamento}
+                disabled
                 id="inputValor"
               />
             </FormGroup>
@@ -154,21 +211,37 @@ class CadastroLancamentos extends React.Component {
               <SelectMenu
                 id="inputTipo"
                 value={this.state.tipoLancamento}
-                onChange={(e) => this.setState({ tipoLancamento: e.target.value })}
+                onChange={(e) =>
+                  this.setState({ tipoLancamento: e.target.value })
+                }
                 className="form-control"
                 lista={tipos}
               />
             </FormGroup>
           </div>
           <div>
-            < br/> 
-            <button
+            <br />
+            {
+              this.state.atualizando ? (
+                <button
               type="button"
-              onClick={this.cadastrar}
+              onClick={this.atualizar}
               className="btn btn-success"
             >
-              Salvar
+              Atualizar
             </button>
+              ) : (
+                <button
+                type="button"
+                onClick={this.cadastrar}
+                className="btn btn-success"
+              >
+                Salvar
+              </button>
+              )
+            }
+           
+            
             <button
               type="button"
               onClick={this.confirmaCancelar}
@@ -179,16 +252,17 @@ class CadastroLancamentos extends React.Component {
           </div>
         </div>
         <div>
-        <ConfirmDialog visible={this.state.showConfirmDialog} 
-                       onHide={() => this.setState({showConfirmDialog: false})} 
-                       message="Existe um lancamento em edição. Deseja descartar?"
-                       header="Confirmação" 
-                       icon="pi pi-exclamation-triangle" 
-                       acceptLabel="Sim"
-                       rejectLabel="Não"
-                       accept={this.cancelar} 
-                       //reject={reject} 
-                       />
+          <ConfirmDialog
+            visible={this.state.showConfirmDialog}
+            onHide={() => this.setState({ showConfirmDialog: false })}
+            message="Existe um lancamento em edição. Deseja descartar?"
+            header="Confirmação"
+            icon="pi pi-exclamation-triangle"
+            acceptLabel="Sim"
+            rejectLabel="Não"
+            accept={this.cancelar}
+            //reject={reject}
+          />
         </div>
       </Card>
     );

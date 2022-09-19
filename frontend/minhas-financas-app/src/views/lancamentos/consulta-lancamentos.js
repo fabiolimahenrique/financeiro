@@ -72,6 +72,14 @@ class ConsultaLancamentos extends React.Component {
 
   }
 
+  cadastrar = () => {
+    this.props.history.push("/cadastro-lancamentos");
+  };
+
+  editar = (id) => {
+    this.props.history.push(`/cadastro-lancamentos/${id}`);
+  } 
+
   render() {
     const meses = this.service.obterListaMeses();
 
@@ -117,7 +125,7 @@ class ConsultaLancamentos extends React.Component {
               <button type="button"  onClick={this.buscar} className="btn btn-success">
                 Buscar
               </button>
-              <button type="button" className="btn btn-danger">
+              <button type="button" onClick={this.cadastrar} className="btn btn-danger">
                 Cadastrar
               </button>
             </div>
@@ -127,7 +135,9 @@ class ConsultaLancamentos extends React.Component {
         <div className="row">
             <div className="col-md-12">
               <div className="bs-component">
-                 <LancamentoTable  lancamentos={this.state.lancamentos}  deletarAction={this.confirmaExclusao} />
+                 <LancamentoTable  lancamentos={this.state.lancamentos}  
+                                   deletarAction={this.confirmaExclusao} 
+                                   editarAction={this.editar} />
               </div>
             </div>
         </div>

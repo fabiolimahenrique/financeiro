@@ -32,7 +32,7 @@ public class LancamentoController {
             @RequestParam(value = "ano", required = false) Integer ano,
             @RequestParam(value = "usuario", required = false) Long idUsuario
     ){
-        System.out.println("id usuario:" + descricao);
+
          Lancamento lancamentoFiltro = new Lancamento();
          lancamentoFiltro.setDescricao(descricao);
          lancamentoFiltro.setMes(mes);
@@ -97,6 +97,28 @@ public class LancamentoController {
             return new ResponseEntity(HttpStatus.NO_CONTENT);
         }).orElseGet( () -> new ResponseEntity("Lançamento não encontrado", HttpStatus.BAD_REQUEST) );
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity buscarPorId(@PathVariable Long id){
+     return lancamentoService.buscarPorId(id).map(  lancamento ->
+         new ResponseEntity( converter(lancamento), HttpStatus.OK)
+      ).orElseGet( () -> new ResponseEntity(HttpStatus.NOT_FOUND) );
+
+    }
+
+    private LancamentoDTO converter(Lancamento lancamento) {
+        return LancamentoDTO.builder()
+                .id(lancamento.getId())
+                .descricao(lancamento.getDescricao())
+                .valor(lancamento.getValor())
+                .mes(lancamento.getMes())
+                .ano(lancamento.getAno())
+                .statusLancamento(lancamento.getStatusLancamento().name())
+                .tipoLancamento(lancamento.getTipoLancamento().name())
+                .usuario(lancamento.getUsuario().getId())
+                .build();
+    }
+
 
     private Lancamento converter(LancamentoDTO lancamentoDTO){
         Lancamento lancamento = new Lancamento();

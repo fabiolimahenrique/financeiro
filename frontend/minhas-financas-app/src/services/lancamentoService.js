@@ -1,5 +1,6 @@
 import ApiService from "./apiservice";
 
+
 export default class LancamentoService extends ApiService {
   constructor() {
     super("/api/lancamentos");
@@ -57,12 +58,22 @@ export default class LancamentoService extends ApiService {
     ];
   }
 
+  
+
   cadastrar(lancamento) {
      return this.post('/', lancamento)
   }
 
+  alterar(lancamento) {
+    return this.put(`/${lancamento.id}`, lancamento)
+ }
+
   deletar(id) {
    return this.delete(`/${id}`)
+  }
+
+  obterPorId(id) {
+    return this.get(`/${id}`)
   }
 
 }
