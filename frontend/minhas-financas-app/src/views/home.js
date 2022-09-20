@@ -1,6 +1,7 @@
 import React from "react";
-import LocalStorageService from "../services/localStorageService";
+import { AuthContext } from "../main/provedorAutenticacao";
 import UsuarioService from "../services/usuarioService";
+import currencyFormatter from "currency-formatter";
 
 class Home extends React.Component {
   state = {
@@ -13,7 +14,7 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    const usuarioLogado = LocalStorageService.obterItem("_usuario_logado");
+    const usuarioLogado = this.context.usuarioAutenticado;
     if (usuarioLogado) {
       this.usuarioService
         .obterSaldoPorUsuario(usuarioLogado.id)
@@ -32,7 +33,7 @@ class Home extends React.Component {
         <h1 className="display-3">Bem vindo!</h1>
         <p className="lead">Esse é seu sistema de finanças.</p>
         <p className="lead">
-          Seu saldo para o mês atual é de R$ {this.state.saldo}
+          Seu saldo para o mês atual é de R$ {currencyFormatter.format(this.state.saldo, { locale: "pt-BR" })}
         </p>
         <hr className="my-4" />
         <p>
@@ -59,5 +60,7 @@ class Home extends React.Component {
     );
   }
 }
+
+Home.contextType = AuthContext
 
 export default Home;

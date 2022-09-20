@@ -13,14 +13,22 @@ const LancamentoTable = (props) => {
         <td>{lancamento.mes}</td>
         <td>{lancamento.statusLancamento}</td>
         <td>
-          <button type="button" 
-                  onClick={ e => props.editarAction(lancamento.id)} className="btn btn-primary">
-            Editar
+          <button type="button" title="Efetivar" 
+                  onClick={ e => props.efetivarAction(lancamento, 'EFETIVADO')} className="btn btn-success">
+            <i class="pi pi-check-circle"></i>
           </button>
-          <button type="button"
+          <button type="button" title="Cancelar"
+                  onClick={ e => props.cancelarAction(lancamento, 'CANCELADO')} className="btn btn-danger">
+           <i class="pi pi-times-circle"></i> 
+          </button>
+          <button type="button" title="Editar"
+                  onClick={ e => props.editarAction(lancamento.id)} className="btn btn-primary">
+            <i class="pi pi-pencil"></i>  
+          </button>
+          <button type="button" title="Excluir"
                   onClick={e => props.deletarAction(lancamento)} 
                   className="btn btn-danger">
-            Deletar
+            <i class="pi pi-trash"></i>  
           </button>
         </td>
       </tr>

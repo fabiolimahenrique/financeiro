@@ -56,6 +56,9 @@ pre {
 .bs-docs-section {
   margin-top: 4em;
 }
+.btn {
+  margin-right: 5px;
+}
 .bs-docs-section .page-header h1 {
   padding: 2rem 0;
   font-size: 3rem;

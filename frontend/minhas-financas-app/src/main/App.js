@@ -10,17 +10,18 @@ import 'toastr/build/toastr.css';
 import "primereact/resources/themes/lara-light-indigo/theme.css";  //theme
 import "primereact/resources/primereact.min.css";                  //core css
 import "primeicons/primeicons.css";                                //icons
+import ProvedorAutenticacao from "./provedorAutenticacao";
  
 
 class App extends React.Component {
   render() {
     return (
-      <>
+      <ProvedorAutenticacao>
         <Navbar />
         <div className="container">
           <Rotas />
         </div>
-      </>
+      </ProvedorAutenticacao>
     );
   }
 }

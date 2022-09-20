@@ -76,4 +76,8 @@ export default class LancamentoService extends ApiService {
     return this.get(`/${id}`)
   }
 
+  atualizarStatus(id, statusLancamento) {
+    return this.put(`/${id}/atualiza-status`, { statusLancamento })
+  }
+
 }
